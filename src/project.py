@@ -20,7 +20,7 @@ def menu_text(screen, resolution, font_size = 40, title_size = 80):
     draw_text(screen, "Tab to Fullscreen",
                 font, text_col, title_width, title_height + title_size + font_size * 2)
     draw_text(screen, "Space to Pause",
-                font, text_col, title_width, title_height + title_size + font_size * 3)  
+                font, text_col, title_width, title_height + title_size + font_size * 3)
 
 
 def main():
