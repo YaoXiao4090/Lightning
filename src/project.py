@@ -44,19 +44,34 @@ def pause_menu(screen, resolution, font_size = 160):
                                  resolution[1]/2 - font_size/2)
     draw_text(screen, "Paused",
                 text_font, text_col, text_width, text_height)
-    
+
+def get_image(sheet, width, height, scale, colour):
+    image = pygame.Surface((width, height)).convert_alpha()
+    image.blit(sheet, (0, 0), (1974, 5, 41, 19))
+    image = pygame.transform.scale(image, (width * scale, height * scale))
+    image.set_colorkey(colour)
+    return image
+
 def main():
     pygame.init()
     pygame.display.set_caption("Lightning")
     clock = pygame.time.Clock()
     FPS = 60
     resolution = (853, 480)
+    blue = (0, 0, 255)
     screen = pygame.display.set_mode(resolution)
     full_width, full_height = pygame.display.get_desktop_sizes()[0]
+    SSI = pygame.image.load('Arcade - Raiden Fighters - Raiden MK-II.png').convert_alpha()
     scroll = 0
     Play = False
     Fullscreen = False
     Pause = False
+    player_input = {"left": False, "right": False, "up": False,
+                     "down": False, "shoot": False}
+    player_velocity = [0, 0]
+    player_speed = 3
+    F_speed = 6
+    player_pos = [0, resolution[1]/2]
     run = True
     while run:
         clock.tick(FPS)
@@ -78,12 +93,33 @@ def main():
                     Play = True
                 elif Pause == False and event.key == pygame.K_SPACE:
                     Pause = True
+                elif Play == True and event.key == pygame.K_a:
+                    player_input["left"] = True
+                elif Play == True and event.key == pygame.K_d:
+                    player_input["right"] = True
+                elif Play == True and event.key == pygame.K_w:
+                    player_input["up"] = True
+                elif Play == True and event.key == pygame.K_s:
+                    player_input["down"] = True
                 elif event.key == pygame.K_SPACE:
                     Pause = False
+            if event.type == pygame.KEYUP:
+                if Play == True and event.key == pygame.K_a:
+                    player_input["left"] = False
+                elif Play == True and event.key == pygame.K_d:
+                    player_input["right"] = False
+                elif Play == True and event.key == pygame.K_w:
+                    player_input["up"] = False
+                elif Play == True and event.key == pygame.K_s:
+                    player_input["down"] = False
             if event.type == pygame.QUIT:
                 run = False
-        if Play == True and Pause == False:
-            scroll -= 5
+        if Fullscreen == True:
+            player_ship = get_image(SSI, 41, 19, 2, blue)
+        else:
+            player_ship = get_image(SSI, 41, 19, 1, blue)
+        player_velocity[0] = player_input["right"] - player_input["left"]
+        player_velocity[1] = player_input["down"] - player_input["up"]
         BG_width = scrolling_BG(scroll, screen, resolution, Fullscreen)
         if abs(scroll) > BG_width:
             scroll = 0
@@ -91,6 +127,16 @@ def main():
             menu_text(screen, resolution, font_size = 40, title_size = 80)
         if Play == True and Pause == True:
             pause_menu(screen, resolution, font_size = 160)
+        if Play == True and Pause == False:
+            scroll -= 5
+            screen.blit(player_ship, player_pos)
+            if Fullscreen == True:
+                player_pos[0] += player_velocity[0] * F_speed
+                player_pos[1] += player_velocity[1] * F_speed
+            else:
+                player_pos[0] += player_velocity[0] * player_speed
+                player_pos[1] += player_velocity[1] * player_speed
+
         pygame.display.update()
         
     pygame.quit()
