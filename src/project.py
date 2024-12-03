@@ -39,3 +39,64 @@ enemy_part = [163, 212]
 Bound_x = (0, full_width)
 Bound_y = (0, full_height)
 dt = 0
+
+
+class Object:
+    def __init__(self, x, y, width, height, image, speed):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+        self.image = image
+        self.speed = speed
+        self.velocity = [0, 0]
+        self.collider = [width, height]
+
+        objects.append(self)
+
+    def draw(self):
+        screen.blit(self.image, (self.x, self.y))
+
+    def get_center(self):
+        return self.x + self.width / 2, self.y + self.height / 2
+
+    def update(self):
+        self.x += self.velocity[0] * self.speed
+        self.y += self.velocity[1] * self.speed
+        self.draw()
+
+
+class Player(Object):
+    def __init__(self, x, y, width, height, image, speed):
+        super().__init__(x, y, width, height, image, speed)
+        self.health = self.max_health = 3
+
+    def update(self):
+        super().update()
+
+        self.x = max(Bound_x[0], min(self.x, Bound_x[1] - self.width))
+        self.y = max(Bound_y[0], min(self.y, Bound_y[1] - self.height))
+
+
+class Enemy(Object):
+    def __init__(self, x, y, width, height, image, speed):
+        super().__init__(x, y, width, height, image, speed)
+
+        self.health = 1
+        enemies.append(self)
+
+    def update(self):
+        player_center = player.get_center()
+        enemy_center = self.get_center()
+
+        self.velocity = [
+            player_center[0] - enemy_center[0],
+            player_center[1] - enemy_center[1],
+        ]
+        magnitude = (self.velocity[0] ** 2 + self.velocity[1] ** 2) ** 0.5
+        self.velocity = [
+            self.velocity[0] / magnitude * self.speed,
+            self.velocity[1] / magnitude * self.speed,
+        ]
+
+        super().update()
