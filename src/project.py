@@ -247,3 +247,98 @@ def explode(x, y):
     explosion = Object(x, y, 87, 87, pygame.image.load("enemy_explode.png"), 0)
     explosions.append(explosion)
 
+
+player = Player(0, full_height / 2, 41, 19, player_ship, 5)
+spawner = enemy_spawner()
+scroll = 0
+run = True
+while run:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            run = False
+        elif event.type == pygame.KEYDOWN:
+            check_input(event.key, True)
+            if event.key == pygame.K_j:
+                shoot()
+            if player_input["Play"] == False and event.key == pygame.K_RETURN:
+                resolution = (full_width, full_height)
+                screen = pygame.display.set_mode(resolution)
+                pygame.display.toggle_fullscreen()
+                player_input["Play"] = True
+        elif event.type == pygame.KEYUP:
+            check_input(event.key, False)
+
+    if player_input["Exit"] == True:
+        run = False
+
+    dt += 1
+    if dt == 60:
+        enemy_shoot()
+        dt = 0
+
+    player.velocity[0] = player_input["right"] - player_input["left"]
+    player.velocity[1] = player_input["down"] - player_input["up"]
+
+    BG_width = scrolling_BG(scroll, screen, resolution)
+    if abs(scroll) > BG_width:
+        scroll = 0
+
+    next(spawner)
+    display_ui()
+
+    if game_over:
+        update_screen()
+        continue
+
+    if player.health <= 0:
+        if not game_over:
+            game_over = True
+
+    for n in explosions:
+        n.image.set_alpha(n.image.get_alpha() - 1)
+        if n.image.get_alpha() == 0:
+            objects.remove(n)
+            explosions.remove(n)
+            continue
+        objects.remove(n)
+        objects.insert(0, n)
+
+    for obj in objects:
+        obj.update()
+
+    if player_input["Play"] == False:
+        menu_text(screen, resolution, font_size=40, title_size=80)
+    else:
+        scroll -= 5
+
+    for b in bullets:
+        if b.x <= Bound_x[1]:
+            continue
+        bullets.remove(b)
+        objects.remove(b)
+
+    for e in enemies:
+        if check_collision(player, e):
+            player.health -= 1
+            e.destroy()
+            continue
+        for b in bullets:
+            if check_collision(b, e):
+                e.take_damage(1)
+                score += 1
+                bullets.remove(b)
+                objects.remove(b)
+
+    for B in enemy_bullets:
+        if B.x >= Bound_x[0]:
+            continue
+        enemy_bullets.remove(B)
+        objects.remove(B)
+
+    for B in enemy_bullets:
+        if check_collision(player, B):
+            player.health -= 1
+            enemy_bullets.remove(B)
+            objects.remove(B)
+
+    update_screen()
