@@ -53,7 +53,7 @@ def scrolling_BG(speed, screen, resolution):
         screen.blit(BG, (i * BG_width + speed, BG_height * 2))
     return BG_width
 
-def enemy_spawner(full_height, full_width, enemy_ship, enemy_part):
+def enemy_spawner(full_height, full_width, enemy_ship):
     while True:
         for _ in range(60):
             yield
@@ -96,6 +96,10 @@ def display_ui(screen, player, score, game_over, full_width, full_height, health
     
     if game_over:
         draw_text(screen, "You Loss", loss_font, pink, full_width/2 - 200, full_height/2 - 80)
+
+def enemy_explode(x, y):
+    explosion =Object(x, y, 150, 125, pygame.image.load("enemy_explode.png"), 0)
+    explosions.append(explosion)
 
 class Object:
     def __init__(self, x, y, width, height, image, speed):
@@ -154,6 +158,7 @@ class Enemy(Object):
             self.dead = True
     
     def destroy(self):
+        enemy_explode(self.x, self.y - 50)
         objects.remove(self)
         enemies.remove(self)
 
@@ -166,11 +171,12 @@ def main():
     resolution = (853, 480)
     screen = pygame.display.set_mode(resolution)
     pygame.display.set_caption("Lightning")
-    global objects, bullets, enemy_bullets, enemies
+    global objects, bullets, enemy_bullets, enemies, explosions
     objects = []
     bullets = []
     enemy_bullets = []
     enemies = []
+    explosions = []
     score = 0
     game_over = False
     FPS = 60
@@ -193,7 +199,7 @@ def main():
     bullet_img = get_image(SSI, bullet_part[0], bullet_part[1], 21, 5, 2, blue)
     health_img = get_image(health_pic, 3, 3, 511, 515, 0.1, white)
     player = Player(0, full_height / 2, 41, 19, player_ship, 5)
-    spawner = enemy_spawner(full_height, full_width, enemy_ship, enemy_part)
+    spawner = enemy_spawner(full_height, full_width, enemy_ship)
     scroll = 0
     run = True
     while run:
@@ -239,6 +245,15 @@ def main():
             if not game_over:
                 game_over = True
         
+        for explode in explosions:
+            explode.image.set_alpha(explode.image.get_alpha() - 1)
+            if explode.image.get_alpha() == 0:
+                objects.remove(explode)
+                explosions.remove(explode)
+                continue
+            objects.remove(explode)
+            objects.insert(0, explode)
+
         for obj in objects:
             if isinstance(obj, Player):
                 obj.update(screen, Bound_x, Bound_y)
