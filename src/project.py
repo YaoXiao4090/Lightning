@@ -166,7 +166,7 @@ def main():
     pygame.init()
     pygame.mixer.init()
     pygame.mixer.music.load("LIGHTNING WAR.MP3")
-    pygame.mixer.music.set_volume(0.5)
+    pygame.mixer.music.set_volume(0.1)
     blue = (0, 0, 255)
     pink = (255, 91, 175)
     white = (255, 255, 255)
