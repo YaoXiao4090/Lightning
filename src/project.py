@@ -95,7 +95,7 @@ def display_ui(screen, player, score, game_over, full_width, full_height, health
     draw_text(screen, f'Score: {score}', font, white, full_width / 2 - 40, 20)
     
     if game_over:
-        draw_text(screen, "You Loss", loss_font, pink, full_width/2 - 200, full_height/2 - 80)
+        draw_text(screen, "Press Space to Restart", loss_font, pink, full_width/2 - 200, full_height/2 - 80)
 
 def enemy_explode(x, y):
     explosion =Object(x, y, 150, 125, pygame.image.load("enemy_explode.png"), 0)
@@ -217,6 +217,9 @@ def main():
                     screen = pygame.display.set_mode(resolution)
                     pygame.display.toggle_fullscreen()
                     player_input["Play"] = True
+                
+                if game_over == True and event.key == pygame.K_SPACE:
+                    main()
                     
             elif event.type == pygame.KEYUP:
                 player_input = check_input(player_input, event.key, False)
