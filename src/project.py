@@ -167,7 +167,6 @@ def main():
     pygame.mixer.init()
     pygame.mixer.music.load("LIGHTNING WAR.MP3")
     pygame.mixer.music.set_volume(0.5)
-    
     blue = (0, 0, 255)
     pink = (255, 91, 175)
     white = (255, 255, 255)
@@ -192,17 +191,24 @@ def main():
     clock = pygame.time.Clock()
     SSI = pygame.image.load('Arcade - Raiden Fighters - Raiden MK-II.png').convert_alpha()
     EMI = pygame.image.load('Arcade - Sengeki Striker - Enemy 01.png').convert_alpha()
+    EBI = pygame.image.load('Arcade - Raiden Fighters - Enemy.png').convert_alpha()
     health_pic = pygame.image.load("health.png").convert_alpha()
     player_ship_part = [1974, 5]
+    fire_part = [1941, 21]
     bullet_part = [1900, 447]
     enemy_part = [163, 212]
+    enemy_bullet_part = [538, 150]
     Bound_x = (0, full_width)
     Bound_y = (0, full_height)
     player_ship = get_image(SSI, player_ship_part[0], player_ship_part[1], 41, 19, 2, blue)
+    player_booster = get_image(SSI, fire_part[0], fire_part[1], 7, 7, 2, blue)
     enemy_ship = get_image(EMI, enemy_part[0], enemy_part[1], 43, 18, 2, pink)
     bullet_img = get_image(SSI, bullet_part[0], bullet_part[1], 21, 5, 2, blue)
+    enemy_bullet = get_image(EBI, enemy_bullet_part[0], enemy_bullet_part[1], 16, 7, 2, blue)
     health_img = get_image(health_pic, 3, 3, 511, 515, 0.1, white)
-    player = Player(0, full_height / 2, 41, 19, player_ship, 5)
+    player = Player(7, full_height / 2, 41, 19, player_ship, 5)
+    player_back = player.get_center()
+    booster = Player(player_back[0] - 30, player_back[1], 7, 7, player_booster, 5)
     spawner = enemy_spawner(full_height, full_width, enemy_ship)
     scroll = 0
     run = True
@@ -221,7 +227,7 @@ def main():
                     screen = pygame.display.set_mode(resolution)
                     pygame.display.toggle_fullscreen()
                     player_input["Play"] = True
-                    pygame.mixer.music.play()
+                    pygame.mixer.music.play(-1)
                     next(spawner)
                 if game_over == True and event.key == pygame.K_SPACE:
                     main()
@@ -234,10 +240,12 @@ def main():
         
         dt += 1
         if dt == 60:
-            enemy_shoot(enemies, bullet_img)
+            enemy_shoot(enemies, enemy_bullet)
             dt = 0
         player.velocity[0] = player_input["right"] - player_input["left"]
         player.velocity[1] = player_input["down"] - player_input["up"]
+        booster.velocity[0] = player_input["right"] - player_input["left"]
+        booster.velocity[1] = player_input["down"] - player_input["up"]
         BG_width = scrolling_BG(scroll, screen, resolution)
         if abs(scroll) > BG_width:
             scroll = 0
