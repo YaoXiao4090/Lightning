@@ -19,7 +19,7 @@ def menu_text(screen, resolution, font_size=40, title_size=80):
     text_col = pygame.Color(255, 255, 255)
     title_col = pygame.Color(255, 255, 0)
     title_width, title_height = (resolution[0]/2 - title_size * 1.5,
-                                 resolution[1]/2 - title_size * 1.5)
+                                 resolution[1]/2 - title_size)
     draw_text(screen, "Lighting", 
               title, title_col, title_width, title_height)
     draw_text(screen, "Enter to Start", 
@@ -88,14 +88,14 @@ def display_ui(screen, player, score, game_over, full_width, full_height, health
             screen.blit(health_img, (i * 40 - player.max_health * 3, 20))
     
     font = pygame.font.SysFont("None", 40)
-    loss_font = pygame.font.SysFont("None", 160)
+    loss_font = pygame.font.SysFont("None", 100)
     white = (255, 255, 255)
     pink = (255, 91, 175)
     
     draw_text(screen, f'Score: {score}', font, white, full_width / 2 - 40, 20)
     
     if game_over:
-        draw_text(screen, "Press Space to Restart", loss_font, pink, full_width/2 - 200, full_height/2 - 80)
+        draw_text(screen, "Press Space to Restart", loss_font, pink, full_width/2 - 350, full_height/2 - 80)
 
 def enemy_explode(x, y):
     explosion =Object(x, y, 150, 125, pygame.image.load("enemy_explode.png"), 0)
@@ -164,6 +164,10 @@ class Enemy(Object):
 
 def main():
     pygame.init()
+    pygame.mixer.init()
+    pygame.mixer.music.load("LIGHTNING WAR.MP3")
+    pygame.mixer.music.set_volume(0.5)
+    
     blue = (0, 0, 255)
     pink = (255, 91, 175)
     white = (255, 255, 255)
@@ -217,7 +221,8 @@ def main():
                     screen = pygame.display.set_mode(resolution)
                     pygame.display.toggle_fullscreen()
                     player_input["Play"] = True
-                
+                    pygame.mixer.music.play()
+                    next(spawner)
                 if game_over == True and event.key == pygame.K_SPACE:
                     main()
                     
@@ -236,12 +241,13 @@ def main():
         BG_width = scrolling_BG(scroll, screen, resolution)
         if abs(scroll) > BG_width:
             scroll = 0
-        next(spawner)
+        
         display_ui(screen, player, score, game_over, full_width, full_height, health_img)
         
         if game_over:
             clock.tick(FPS)
             pygame.display.update()
+            pygame.mixer.music.stop()
             continue
         
         if player.health <= 0:
@@ -268,7 +274,9 @@ def main():
         if not player_input["Play"]:
             menu_text(screen, resolution, font_size=40, title_size=80)
         else:
+            next(spawner)
             scroll -= 5
+            
         
         for b in bullets.copy():
             if b.x >= Bound_x[1]:
