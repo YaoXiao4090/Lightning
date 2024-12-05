@@ -236,7 +236,7 @@ def main():
                 player_input = check_input(player_input, event.key, False)
                 
             if player_input["Exit"]:
-                run = False
+                exit()
         
         dt += 1
         if dt == 60:
