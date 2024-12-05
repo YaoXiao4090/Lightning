@@ -5,7 +5,7 @@ Lightning
 [Repository](https://github.com/YaoXiao4090/Lightning.git)
 
 # **Youtube**
-[Youtube](https://youtu.be/OcrkrfnrkS0)
+[Youtube](https://youtu.be/f5M5AhbhmDk)
 
 # **Description**
     The project is to create a very simple version of the 1990 arcade game Raiden in a space setting using pygame.
